@@ -29,6 +29,7 @@ export default function Home() {
   const [readAt, setReadAt] = useState<string | null>(null);
   const [theme, setTheme] = useState<ThemeMode>("light");
   const [translation, setTranslation] = useState("NIV");
+  const [shareStatus, setShareStatus] = useState<"idle" | "copied">("idle");
 
   const safeGet = (key: string) => {
     try {
@@ -110,6 +111,28 @@ export default function Home() {
       }).format(new Date(readAt))
     : null;
 
+  const shareText = `Today is enough. One verse, one breath.\n${formatLongDate(
+    today
+  )} — ${reference}`;
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "Today Is Enough",
+          text: shareText,
+          url: window.location.href,
+        });
+        return;
+      }
+      await navigator.clipboard.writeText(shareText);
+      setShareStatus("copied");
+      window.setTimeout(() => setShareStatus("idle"), 2000);
+    } catch {
+      // If sharing fails, silently ignore to keep the tone gentle.
+    }
+  };
+
   const bibleGatewayUrl = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(
     reference
   )}&version=${encodeURIComponent(translation)}`;
@@ -144,6 +167,9 @@ export default function Home() {
             {reference}
           </h2>
           <p className="mt-4 text-lg text-[var(--muted)]">Today is enough.</p>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            One verse, one breath. Rest, not rush.
+          </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
             <a
@@ -160,6 +186,13 @@ export default function Home() {
               className="inline-flex items-center justify-center rounded-full border border-[var(--accent)] px-5 py-2 text-sm font-semibold text-[var(--accent)] transition hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
             >
               {isRead ? "Marked for today (undo)" : "Mark today as read"}
+            </button>
+            <button
+              type="button"
+              onClick={handleShare}
+              className="inline-flex items-center justify-center rounded-full border border-[var(--border)] px-5 py-2 text-sm font-semibold text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--foreground)]"
+            >
+              {shareStatus === "copied" ? "Copied" : "Share today"}
             </button>
           </div>
           {isRead && formattedReadAt ? (
@@ -231,6 +264,12 @@ export default function Home() {
           No streaks. No backlog. Just grace for today and the next gentle step
           forward.
         </p>
+        <Link
+          href="/why"
+          className="mt-4 inline-flex text-sm font-semibold text-[var(--accent)]"
+        >
+          Why this exists
+        </Link>
       </footer>
     </div>
   );
