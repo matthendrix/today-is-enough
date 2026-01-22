@@ -69,3 +69,6 @@ export const getReferenceForDate = (date: Date) => {
 export const getReadKey = (dateKey: string) => `today-is-enough.read.${dateKey}`;
 
 export const getNoteKey = (dateKey: string) => `today-is-enough.note.${dateKey}`;
+
+export const getReadAtKey = (dateKey: string) =>
+  `today-is-enough.readAt.${dateKey}`;

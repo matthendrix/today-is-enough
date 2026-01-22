@@ -7,6 +7,7 @@ import {
   formatDateKey,
   formatLongDate,
   getNoteKey,
+  getReadAtKey,
   getReadKey,
   getReferenceForDate,
   themeKey,
@@ -20,10 +21,12 @@ export default function Home() {
   const dateKey = useMemo(() => formatDateKey(today), [today]);
   const reference = useMemo(() => getReferenceForDate(today), [today]);
   const readKey = useMemo(() => getReadKey(dateKey), [dateKey]);
+  const readAtKey = useMemo(() => getReadAtKey(dateKey), [dateKey]);
   const noteKey = useMemo(() => getNoteKey(dateKey), [dateKey]);
 
   const [note, setNote] = useState("");
   const [isRead, setIsRead] = useState(false);
+  const [readAt, setReadAt] = useState<string | null>(null);
   const [theme, setTheme] = useState<ThemeMode>("light");
   const [translation, setTranslation] = useState("NIV");
 
@@ -43,11 +46,20 @@ export default function Home() {
     }
   };
 
+  const safeRemove = (key: string) => {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // Ignore storage failures (e.g., privacy modes); UI should still update.
+    }
+  };
+
   useEffect(() => {
     const storedNote = safeGet(noteKey);
     const storedRead = safeGet(readKey);
     setNote(storedNote ?? "");
     setIsRead(storedRead === "true");
+    setReadAt(safeGet(readAtKey));
 
     const storedTheme = safeGet(themeKey) as ThemeMode | null;
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -57,15 +69,20 @@ export default function Home() {
 
     const storedTranslation = safeGet(translationKey);
     setTranslation(storedTranslation ?? "NIV");
-  }, [noteKey, readKey]);
+  }, [noteKey, readKey, readAtKey]);
 
   const handleRead = () => {
     const nextValue = !isRead;
     setIsRead(nextValue);
     if (nextValue) {
       safeSet(readKey, "true");
+      const timestamp = new Date().toISOString();
+      safeSet(readAtKey, timestamp);
+      setReadAt(timestamp);
     } else {
       safeSet(readKey, "false");
+      safeRemove(readAtKey);
+      setReadAt(null);
     }
   };
 
@@ -85,6 +102,13 @@ export default function Home() {
     setTranslation(value);
     safeSet(translationKey, value);
   };
+
+  const formattedReadAt = readAt
+    ? new Intl.DateTimeFormat("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+      }).format(new Date(readAt))
+    : null;
 
   const bibleGatewayUrl = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(
     reference
@@ -138,6 +162,11 @@ export default function Home() {
               {isRead ? "Marked for today (undo)" : "Mark today as read"}
             </button>
           </div>
+          {isRead && formattedReadAt ? (
+            <p className="mt-3 text-sm text-[var(--muted)]">
+              Marked at {formattedReadAt}.
+            </p>
+          ) : null}
         </section>
 
         <section className="grid gap-6">
