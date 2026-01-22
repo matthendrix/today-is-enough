@@ -147,6 +147,15 @@ export default function Home() {
           <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
             {formatLongDate(today)}
           </h1>
+          <p className="mt-3 text-base text-[var(--muted)]">
+            One short passage each day. No streaks. Just grace.
+          </p>
+          <Link
+            href="/why"
+            className="mt-3 inline-flex text-sm font-semibold text-[var(--accent)]"
+          >
+            Why this exists
+          </Link>
         </div>
         <button
           type="button"
@@ -195,6 +204,9 @@ export default function Home() {
               {shareStatus === "copied" ? "Copied" : "Share today"}
             </button>
           </div>
+          <p className="mt-3 text-sm text-[var(--muted)]">
+            Open the passage, read at your pace, then mark it if you want.
+          </p>
           {isRead && formattedReadAt ? (
             <p className="mt-3 text-sm text-[var(--muted)]">
               Marked at {formattedReadAt}.
@@ -218,6 +230,9 @@ export default function Home() {
               className="mt-4 block text-sm font-semibold text-[var(--muted)]"
             >
               What stood out today?
+              <span className="ml-2 text-xs font-normal text-[var(--muted)]">
+                Optional
+              </span>
             </label>
             <textarea
               id="notes"
@@ -264,12 +279,6 @@ export default function Home() {
           No streaks. No backlog. Just grace for today and the next gentle step
           forward.
         </p>
-        <Link
-          href="/why"
-          className="mt-4 inline-flex text-sm font-semibold text-[var(--accent)]"
-        >
-          Why this exists
-        </Link>
       </footer>
     </div>
   );
