@@ -1,26 +1,43 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6f1e8;
+  --surface: #ffffff;
+  --foreground: #1f1a17;
+  --muted: #5f564c;
+  --border: #e3d9cb;
+  --accent: #3b5143;
+  --accent-foreground: #f7f2ea;
+  --note: #fbf7ef;
+  --shadow: 0 24px 80px rgba(38, 30, 24, 0.08);
+}
+
+:root[data-theme="dark"] {
+  --background: #0f1110;
+  --surface: #161a17;
+  --foreground: #f0eae0;
+  --muted: #b6afa4;
+  --border: #2c322c;
+  --accent: #7ca18b;
+  --accent-foreground: #101311;
+  --note: #1b201c;
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-source-sans);
+  --font-serif: var(--font-crimson-pro);
 }
 
 body {
-  background: var(--background);
+  background: radial-gradient(120% 120% at 50% 0%, var(--surface) 0%, var(--background) 60%);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), sans-serif;
+  min-height: 100vh;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
 }
