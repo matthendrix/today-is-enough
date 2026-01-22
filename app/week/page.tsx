@@ -41,6 +41,22 @@ export default function WeekPage() {
   const weekDates = useMemo(() => getWeekDates(today), [today]);
   const [days, setDays] = useState<DayStatus[]>([]);
 
+  const safeGet = (key: string) => {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  };
+
+  const safeSet = (key: string, value: string) => {
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      // Ignore storage failures; UI should still update.
+    }
+  };
+
   useEffect(() => {
     const storedTheme = localStorage.getItem(themeKey);
     if (storedTheme) {
@@ -50,7 +66,7 @@ export default function WeekPage() {
     const nextDays = weekDates.map((date) => {
       const dateKey = formatDateKey(date);
       const readKey = getReadKey(dateKey);
-      const read = localStorage.getItem(readKey) === "true";
+      const read = safeGet(readKey) === "true";
       return {
         date,
         dateKey,
@@ -60,6 +76,19 @@ export default function WeekPage() {
     });
     setDays(nextDays);
   }, [weekDates]);
+
+  const toggleDay = (dateKey: string) => {
+    setDays((current) =>
+      current.map((day) => {
+        if (day.dateKey !== dateKey) {
+          return day;
+        }
+        const nextRead = !day.read;
+        safeSet(getReadKey(dateKey), nextRead ? "true" : "false");
+        return { ...day, read: nextRead };
+      })
+    );
+  };
 
   return (
     <div className="min-h-screen px-6 py-10 text-[var(--foreground)] sm:px-12 lg:px-20">
@@ -98,9 +127,17 @@ export default function WeekPage() {
               </div>
               <div
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] text-lg"
-                aria-label={day.read ? "Read" : "Not read"}
               >
-                {day.read ? "✓" : " "}
+                <button
+                  type="button"
+                  onClick={() => toggleDay(day.dateKey)}
+                  className="flex h-full w-full items-center justify-center rounded-full text-lg text-[var(--foreground)]"
+                  aria-label={
+                    day.read ? "Marked as read. Click to undo." : "Mark as read."
+                  }
+                >
+                  {day.read ? "✓" : " "}
+                </button>
               </div>
             </div>
           ))}

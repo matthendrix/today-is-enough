@@ -27,42 +27,63 @@ export default function Home() {
   const [theme, setTheme] = useState<ThemeMode>("light");
   const [translation, setTranslation] = useState("NIV");
 
+  const safeGet = (key: string) => {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  };
+
+  const safeSet = (key: string, value: string) => {
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      // Ignore storage failures (e.g., privacy modes); UI should still update.
+    }
+  };
+
   useEffect(() => {
-    const storedNote = localStorage.getItem(noteKey);
-    const storedRead = localStorage.getItem(readKey);
+    const storedNote = safeGet(noteKey);
+    const storedRead = safeGet(readKey);
     setNote(storedNote ?? "");
     setIsRead(storedRead === "true");
 
-    const storedTheme = localStorage.getItem(themeKey) as ThemeMode | null;
+    const storedTheme = safeGet(themeKey) as ThemeMode | null;
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const initialTheme = storedTheme ?? (prefersDark ? "dark" : "light");
     setTheme(initialTheme);
     document.documentElement.setAttribute("data-theme", initialTheme);
 
-    const storedTranslation = localStorage.getItem(translationKey);
+    const storedTranslation = safeGet(translationKey);
     setTranslation(storedTranslation ?? "NIV");
   }, [noteKey, readKey]);
 
   const handleRead = () => {
-    localStorage.setItem(readKey, "true");
-    setIsRead(true);
+    const nextValue = !isRead;
+    setIsRead(nextValue);
+    if (nextValue) {
+      safeSet(readKey, "true");
+    } else {
+      safeSet(readKey, "false");
+    }
   };
 
   const handleNoteChange = (value: string) => {
     setNote(value);
-    localStorage.setItem(noteKey, value);
+    safeSet(noteKey, value);
   };
 
   const toggleTheme = () => {
     const nextTheme: ThemeMode = theme === "dark" ? "light" : "dark";
     setTheme(nextTheme);
-    localStorage.setItem(themeKey, nextTheme);
+    safeSet(themeKey, nextTheme);
     document.documentElement.setAttribute("data-theme", nextTheme);
   };
 
   const handleTranslationChange = (value: string) => {
     setTranslation(value);
-    localStorage.setItem(translationKey, value);
+    safeSet(translationKey, value);
   };
 
   const bibleGatewayUrl = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(
@@ -114,7 +135,7 @@ export default function Home() {
               onClick={handleRead}
               className="inline-flex items-center justify-center rounded-full border border-[var(--accent)] px-5 py-2 text-sm font-semibold text-[var(--accent)] transition hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
             >
-              {isRead ? "Marked as read" : "I’ve read this today"}
+              {isRead ? "Marked for today (undo)" : "Mark today as read"}
             </button>
           </div>
         </section>
