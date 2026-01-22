@@ -199,8 +199,24 @@ export default function Home() {
             <button
               type="button"
               onClick={handleShare}
-              className="inline-flex items-center justify-center rounded-full border border-[var(--border)] px-5 py-2 text-sm font-semibold text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--foreground)]"
+              className="inline-flex items-center justify-center rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--muted)] transition hover:border-[var(--accent)] hover:text-[var(--foreground)]"
             >
+              <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full border border-[var(--border)] text-[var(--muted)]">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="h-3.5 w-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 5v10" />
+                  <path d="M8.5 8.5 12 5l3.5 3.5" />
+                  <path d="M5 19h14" />
+                </svg>
+              </span>
               {shareStatus === "copied" ? "Copied" : "Share today"}
             </button>
           </div>
